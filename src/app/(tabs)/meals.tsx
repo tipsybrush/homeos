@@ -7,12 +7,13 @@ import { addDays, dayOfMonth, relativeDayLabel, shortWeekday, weekOf, type DateK
 import { useDataVersion, useDb } from '@/core/db/DatabaseProvider';
 import { colors, radius, spacing } from '@/core/theme/tokens';
 import { MealRow } from '@/features/meals/components/MealCard';
-import { useMealsInRange } from '@/features/meals/hooks';
+import { WeeklyPicks } from '@/features/meals/components/WeeklyPicks';
+import { useMealsInRange, useWeeklyVariety } from '@/features/meals/hooks';
 import { buildWeek, categoryLabel, mealTitle } from '@/features/meals/logic';
 import { setMealStatus } from '@/features/meals/repository';
 import { MEAL_CATEGORIES } from '@/features/meals/types';
 import { useToday } from '@/hooks/useToday';
-import { Chip, Divider, Glass, Screen, Section, Text } from '@/ui';
+import { Button, Chip, confirmAsync, Divider, Glass, notify, Screen, Section, Text } from '@/ui';
 
 type View_ = 'day' | 'week';
 
@@ -26,6 +27,23 @@ export default function MealsScreen() {
   const range = useMealsInRange(days[0]!, days[6]!);
   const week = buildWeek(days, range.data);
   const dayMeals = week.find((d) => d.date === selected)?.meals ?? [];
+  const variety = useWeeklyVariety(days, days[0]! < today ? today : days[0]!);
+  const weekIsPast = days[6]! < today;
+
+  const planMyWeek = async () => {
+    const drafts = variety.draftPlan();
+    if (drafts.length === 0) {
+      notify('Your week is already planned', 'Every breakfast, lunch and dinner from today to Sunday has a meal.');
+      return;
+    }
+    const ok = await confirmAsync(
+      'Plan the rest of this week?',
+      `HomeOS will add ${drafts.length} meals to the empty slots: easy everyday dishes plus this week’s specials on the weekend. Nothing you’ve planned is changed, and you can edit or delete any of them.`,
+      'Add meals',
+    );
+    if (!ok) return;
+    await variety.applyPlan(drafts);
+  };
 
   const add = (category?: string, date: DateKey = selected) =>
     router.push({ pathname: '/meal/[id]', params: { id: 'new', date, ...(category ? { category } : {}) } });
@@ -55,6 +73,13 @@ export default function MealsScreen() {
         <View style={{ flex: 1 }} />
         <Chip label="Recipes" onPress={() => router.push('/recipes')} />
       </View>
+
+      {!weekIsPast && (
+        <Section title="Try this week">
+          <WeeklyPicks picks={variety.picks} />
+          <Button label="Plan my week" kind="primary" onPress={planMyWeek} accessibilityHint="Fills empty meal slots with a varied plan" />
+        </Section>
+      )}
 
       <Glass style={styles.strip}>
         <Pressable onPress={() => setSelected(addDays(selected, -7))} hitSlop={8} accessibilityLabel="Previous week" accessibilityRole="button" style={styles.arrow}>

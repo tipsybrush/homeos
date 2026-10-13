@@ -1,4 +1,5 @@
-import { SEED_RECIPES, SEED_ROOMS } from './seed';
+import { SEED_RECIPES_V1, SEED_ROOMS, type SeedRecipe } from './seed';
+import { SEED_RECIPES_V2, V1_RECIPE_KINDS } from './seedV2';
 import type { Db } from './types';
 
 /**
@@ -89,17 +90,40 @@ export const migrations: Migration[] = [
       await seed(db);
     },
   },
+  {
+    version: 2,
+    name: 'everyday Nigerian and weekly-special recipes',
+    up: async (db) => {
+      // Tag the v1 recipes as everyday/special without touching user edits to other fields.
+      for (const [id, kind] of Object.entries(V1_RECIPE_KINDS)) {
+        const row = await db.getFirstAsync<{ tags: string }>('SELECT tags FROM recipes WHERE id = ?', id);
+        if (!row) continue;
+        let tags: string[] = [];
+        try {
+          tags = JSON.parse(row.tags);
+        } catch {
+          tags = [];
+        }
+        if (!tags.includes(kind)) await db.runAsync('UPDATE recipes SET tags = ? WHERE id = ?', JSON.stringify([kind, ...tags]), id);
+      }
+      await insertRecipes(db, SEED_RECIPES_V2);
+    },
+  },
 ];
 
 async function seed(db: Db) {
   for (const room of SEED_ROOMS) {
     await db.runAsync('INSERT INTO rooms (id, name, icon, sort_order) VALUES (?, ?, ?, ?)', room.id, room.name, room.icon, room.sortOrder);
   }
+  await insertRecipes(db, SEED_RECIPES_V1);
+}
+
+/** Inserts seed recipes, reusing ingredients already in the database by normalised name. */
+async function insertRecipes(db: Db, recipes: SeedRecipe[]) {
   const now = new Date().toISOString();
-  const ingredientIds = new Map<string, string>();
-  for (const recipe of SEED_RECIPES) {
+  for (const recipe of recipes) {
     await db.runAsync(
-      `INSERT INTO recipes (id, name, description, cuisine, prep_minutes, cook_minutes, base_servings, instructions, tags, meal_categories, source, created_at, updated_at)
+      `INSERT OR IGNORE INTO recipes (id, name, description, cuisine, prep_minutes, cook_minutes, base_servings, instructions, tags, meal_categories, source, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       recipe.id,
       recipe.name,
@@ -117,26 +141,23 @@ async function seed(db: Db) {
     );
     for (const [i, ing] of recipe.ingredients.entries()) {
       const normalized = ing.name.trim().toLowerCase();
-      let ingredientId = ingredientIds.get(normalized);
-      if (!ingredientId) {
-        ingredientId = `ing_${normalized.replace(/[^a-z0-9]+/g, '_')}`;
-        ingredientIds.set(normalized, ingredientId);
-        await db.runAsync(
-          `INSERT INTO ingredients (id, name, normalized_name, category, default_unit, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          ingredientId,
-          ing.name,
-          normalized,
-          ing.category,
-          ing.unit,
-          now,
-          now,
-        );
-      }
+      const ingredientId = `ing_${normalized.replace(/[^a-z0-9]+/g, '_')}`;
       await db.runAsync(
-        `INSERT INTO recipe_ingredients (id, recipe_id, ingredient_id, quantity, unit, optional, preparation_note) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT OR IGNORE INTO ingredients (id, name, normalized_name, category, default_unit, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        ingredientId,
+        ing.name,
+        normalized,
+        ing.category,
+        ing.unit,
+        now,
+        now,
+      );
+      const existing = await db.getFirstAsync<{ id: string }>('SELECT id FROM ingredients WHERE normalized_name = ?', normalized);
+      await db.runAsync(
+        `INSERT OR IGNORE INTO recipe_ingredients (id, recipe_id, ingredient_id, quantity, unit, optional, preparation_note) VALUES (?, ?, ?, ?, ?, ?, ?)`,
         `${recipe.id}_${i}`,
         recipe.id,
-        ingredientId,
+        existing!.id,
         ing.quantity,
         ing.unit,
         ing.optional ? 1 : 0,

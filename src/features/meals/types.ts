@@ -39,8 +39,12 @@ export type MealDraft = {
   estimatedCostKobo: Kobo | null;
 };
 
+/** 'everyday' = easy, workday-friendly; 'special' = delicacy or something new to try. */
+export type RecipeKind = 'everyday' | 'special';
+
 export type RecipeSummary = {
   id: string;
+  kind: RecipeKind;
   name: string;
   description: string;
   cuisine: string;

@@ -109,6 +109,28 @@ export const migrations: Migration[] = [
       await insertRecipes(db, SEED_RECIPES_V2);
     },
   },
+  {
+    version: 3,
+    name: 'exercise log and wardrobe',
+    up: async (db) => {
+      await db.execAsync(`
+        CREATE TABLE workout_logs (
+          date TEXT PRIMARY KEY NOT NULL,
+          routine_id TEXT NOT NULL,
+          created_at TEXT NOT NULL
+        );
+
+        CREATE TABLE wardrobe_items (
+          id TEXT PRIMARY KEY NOT NULL,
+          name TEXT NOT NULL,
+          category TEXT NOT NULL CHECK (category IN ('top','bottom','outerwear','shoes','headwear','accessory')),
+          colour TEXT,
+          light_fabric INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT NOT NULL
+        );
+      `);
+    },
+  },
 ];
 
 async function seed(db: Db) {

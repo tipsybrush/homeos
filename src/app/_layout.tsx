@@ -43,6 +43,9 @@ export default function RootLayout() {
               name="recipes"
               options={{ headerShown: true, headerTransparent: true, headerBlurEffect: 'dark', title: 'Recipes', headerTintColor: colors.accent, headerLargeTitle: true }}
             />
+            <Stack.Screen name="exercise/index" options={{ headerShown: true, headerTransparent: true, headerBlurEffect: 'dark', title: '', headerTintColor: colors.accent }} />
+            <Stack.Screen name="wardrobe/index" options={{ headerShown: true, headerTransparent: true, headerBlurEffect: 'dark', title: '', headerTintColor: colors.accent }} />
+            <Stack.Screen name="wardrobe/add" options={{ ...sheet, title: 'Add clothing' }} />
             <Stack.Screen
               name="recipe/[id]"
               options={{ headerShown: true, headerTransparent: true, headerBlurEffect: 'dark', title: '', headerTintColor: colors.accent }}

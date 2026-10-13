@@ -154,15 +154,17 @@ function parseList<T = string>(json: string): T[] {
 }
 
 function toSummary(r: RecipeRow): RecipeSummary {
+  const tags = parseList(r.tags);
   return {
     id: r.id,
+    kind: tags.includes('special') ? 'special' : 'everyday',
     name: r.name,
     description: r.description,
     cuisine: r.cuisine,
     prepMinutes: r.prep_minutes,
     cookMinutes: r.cook_minutes,
     baseServings: r.base_servings,
-    tags: parseList(r.tags),
+    tags,
     mealCategories: parseList(r.meal_categories),
   };
 }

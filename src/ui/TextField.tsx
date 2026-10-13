@@ -20,7 +20,7 @@ export function TextField({ label, error, hint, style, ...rest }: Props) {
       <Glass style={[styles.box, error ? { borderColor: colors.red, borderWidth: 1 } : null]}>
         <TextInput
           placeholderTextColor={colors.textTertiary}
-          selectionColor={colors.accent}
+          selectionColor={colors.selection}
           keyboardAppearance="dark"
           accessibilityLabel={label}
           {...rest}

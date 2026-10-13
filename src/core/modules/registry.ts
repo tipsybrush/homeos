@@ -58,8 +58,8 @@ export const MODULES: HomeModule[] = [
     description: 'Your weekly workout plan and daily session',
     icon: 'barbell',
     color: colors.red,
-    status: 'planned',
-    phase: 'After first slice',
+    status: 'available',
+    href: '/exercise',
   },
   {
     id: 'wardrobe',
@@ -67,8 +67,8 @@ export const MODULES: HomeModule[] = [
     description: 'Outfits from clothes you own, what to buy next',
     icon: 'shirt',
     color: colors.indigo,
-    status: 'planned',
-    phase: 'After first slice',
+    status: 'available',
+    href: '/wardrobe',
   },
   {
     id: 'energy',

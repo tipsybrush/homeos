@@ -14,7 +14,7 @@ export const SEED_ROOMS = [
   { id: 'room_hallway', name: 'Hallway', icon: 'walk-outline', sortOrder: 5 },
 ] as const;
 
-type SeedIngredient = {
+export type SeedIngredient = {
   name: string;
   quantity: number;
   unit: 'g' | 'ml' | 'pcs' | 'tbsp' | 'tsp' | 'cup';
@@ -23,7 +23,7 @@ type SeedIngredient = {
   note?: string;
 };
 
-type SeedRecipe = {
+export type SeedRecipe = {
   id: string;
   name: string;
   description: string;
@@ -37,7 +37,7 @@ type SeedRecipe = {
   instructions: string[];
 };
 
-export const SEED_RECIPES: SeedRecipe[] = [
+export const SEED_RECIPES_V1: SeedRecipe[] = [
   {
     id: 'rcp_jollof',
     name: 'Jollof Rice',

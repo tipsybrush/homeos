@@ -34,6 +34,8 @@ export const colors = {
 
   // iOS system colours (dark variants).
   accent: '#FF9F0A', // orange: keeps a little warmth from the original brief
+  // Selection (selected chips, day, text cursor): muted kraft-carton brown, Timi's request 2026-10-13.
+  selection: '#8C6F55',
   blue: '#0A84FF',
   green: '#30D158',
   yellow: '#FFD60A',

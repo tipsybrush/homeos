@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import type { DateKey } from '@/core/dates';
+import { addDays, type DateKey } from '@/core/dates';
 import { useDataVersion, useDb } from '@/core/db/DatabaseProvider';
 
+import { autoFillWeek } from './autofill';
 import { sortMeals } from './logic';
-import { listMealsForDate, listMealsInRange, listRecipes } from './repository';
-import type { MealPlanEntryView, RecipeSummary } from './types';
+import { createMeal, listMealsForDate, listMealsInRange, listRecipes } from './repository';
+import type { MealDraft, MealPlanEntryView, RecipeSummary } from './types';
+import { planWeek, weeklyPicks } from './variety';
 
 type Loadable<T> = { data: T; loading: boolean; error: string | null; reload: () => void };
 
@@ -49,4 +51,75 @@ export function useMealsInRange(from: DateKey, to: DateKey): Loadable<MealPlanEn
 export function useRecipes(): Loadable<RecipeSummary[]> {
   const db = useDb();
   return useLoad(() => listRecipes(db), [], [db]);
+}
+
+/**
+ * This week's specials and a "plan my week" action that fills empty slots
+ * (today onwards) with everyday dishes plus the specials.
+ */
+export function useWeeklyVariety(weekDays: DateKey[], from: DateKey) {
+  const db = useDb();
+  const { bump } = useDataVersion();
+  const start = weekDays[0]!;
+  const end = weekDays[6]!;
+  const data = useLoad(
+    async () => {
+      const [recipes, history, existing] = await Promise.all([
+        listRecipes(db),
+        listMealsInRange(db, addDays(start, -28), addDays(start, -1)),
+        listMealsInRange(db, start, end),
+      ]);
+      return { recipes, history, existing, picks: weeklyPicks(recipes, start, history) };
+    },
+    { recipes: [], history: [], existing: [], picks: [] } as {
+      recipes: RecipeSummary[];
+      history: MealPlanEntryView[];
+      existing: MealPlanEntryView[];
+      picks: RecipeSummary[];
+    },
+    [db, start, end],
+  );
+
+  const draftPlan = useCallback(
+    () =>
+      planWeek({
+        days: weekDays,
+        from,
+        recipes: data.data.recipes,
+        existing: data.data.existing,
+        history: data.data.history,
+        picks: data.data.picks,
+        servings: 2,
+      }),
+    [data.data, weekDays, from],
+  );
+
+  const applyPlan = useCallback(
+    async (drafts: MealDraft[]) => {
+      await db.withTransactionAsync(async () => {
+        for (const d of drafts) await createMeal(db, d);
+      });
+      bump();
+    },
+    [db, bump],
+  );
+
+  return { picks: data.data.picks, loading: data.loading, draftPlan, applyPlan };
+}
+
+/** Fills the week starting at `weekStart` once (see autoFillWeek) and refreshes the screen if meals were added. */
+export function useAutoFillWeek(weekStart: DateKey, from: DateKey) {
+  const db = useDb();
+  const { bump } = useDataVersion();
+  useEffect(() => {
+    let live = true;
+    autoFillWeek(db, weekStart, from)
+      .then((added) => {
+        if (added && live) bump();
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [db, weekStart, from, bump]);
 }

@@ -1,6 +1,7 @@
 import type { Db } from './types';
 
-export type SettingKey = 'ha.mode' | 'ha.baseUrl' | 'profile.homeName' | 'profile.timezone';
+/** `meals.autofilled.<weekStart>` marks a week the planner has already filled once. */
+export type SettingKey = 'ha.mode' | 'ha.baseUrl' | 'profile.homeName' | 'profile.timezone' | `meals.autofilled.${string}`;
 
 export async function getSetting(db: Db, key: SettingKey): Promise<string | null> {
   const row = await db.getFirstAsync<{ value: string }>('SELECT value FROM settings WHERE key = ?', key);

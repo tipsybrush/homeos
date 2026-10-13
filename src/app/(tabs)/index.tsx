@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { formatLongDate, greetingFor, localHour } from '@/core/dates';
+import { formatLongDate, greetingFor, localHour, weekOf } from '@/core/dates';
 import { useDataVersion, useDb } from '@/core/db/DatabaseProvider';
 import { colors, spacing } from '@/core/theme/tokens';
 import { DeviceTile } from '@/features/homeassistant/components/DeviceTile';
@@ -11,7 +11,8 @@ import { SceneButton } from '@/features/homeassistant/components/SceneButton';
 import { friendlyName, isOn, isScene, isToggleable, isUnavailable } from '@/features/homeassistant/entities';
 import { connectionSummary, useHomeAssistant } from '@/features/homeassistant/HomeAssistantProvider';
 import { MealRow } from '@/features/meals/components/MealCard';
-import { useMealsForDate } from '@/features/meals/hooks';
+import { WeeklyPicks } from '@/features/meals/components/WeeklyPicks';
+import { useMealsForDate, useWeeklyVariety } from '@/features/meals/hooks';
 import { mealTitle, upcomingToday } from '@/features/meals/logic';
 import { setMealStatus } from '@/features/meals/repository';
 import { useRoomsAndRefs } from '@/features/rooms/hooks';
@@ -24,6 +25,7 @@ export default function HomeScreen() {
   const { today, nowMinutes, now } = useToday();
   const ha = useHomeAssistant();
   const meals = useMealsForDate(today);
+  const { picks } = useWeeklyVariety(weekOf(today), today);
   const { rooms, refs } = useRoomsAndRefs();
   const conn = connectionSummary(ha.mode, ha.status);
 
@@ -103,6 +105,12 @@ export default function HomeScreen() {
           </Glass>
         )}
       </Section>
+
+      {picks.length > 0 && (
+        <Section title="Try this week" actionLabel="Plan week" onAction={() => router.push('/meals')}>
+          <WeeklyPicks picks={picks} />
+        </Section>
+      )}
 
       {upcoming.length > 0 && (
         <Section title="Up next">

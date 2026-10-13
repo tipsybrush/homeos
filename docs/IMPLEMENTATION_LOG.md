@@ -1,5 +1,14 @@
 # Implementation log
 
+## 2026-10-13 — Meals: everyday Nigerian + weekly specials
+
+Timi: meals should be everyday, easy-to-prepare Nigerian dishes, plus special delicacies or new things to try every week so it isn't repetitive.
+
+- Migration 2 adds 18 original recipes (10 everyday Nigerian: dodo & eggs, Indomie stir-fry, rice & stew, ewa riro & dodo, asaro, egusi & eba, okra soup, bread & egg sauce, jollof spaghetti, plantain porridge; 8 specials/new to try: ofada & ayamase, catfish pepper soup, banga & starch, abacha, gizdodo, fried rice, suya, shakshuka, chicken shawarma) and tags every recipe `everyday` or `special` (`try-new` for unfamiliar dishes).
+- `features/meals/variety.ts` (rule-based, deterministic per week): `weeklyPicks` chooses one delicacy and one new dish each week, skipping anything eaten in the last four weeks; `planWeek` fills empty breakfast/lunch/dinner slots from today, puts specials on weekend dinners, never repeats a dish on consecutive days and avoids last week's dishes.
+- Meals tab: "Try this week" card and **Plan my week** (confirms the count first; never changes existing meals). Home shows the week's picks.
+- 8 new tests (62 total).
+
 ## 2026-10-13 — v1 first slice
 
 ### Done

@@ -131,6 +131,34 @@ export const migrations: Migration[] = [
       `);
     },
   },
+  {
+    version: 4,
+    name: 'kitchen: pantry, shopping checks, grocery spend',
+    up: async (db) => {
+      await db.execAsync(`
+        CREATE TABLE pantry_items (
+          normalized_name TEXT PRIMARY KEY NOT NULL,
+          name TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE shopping_checks (
+          week_start TEXT NOT NULL,
+          normalized_name TEXT NOT NULL,
+          PRIMARY KEY (week_start, normalized_name)
+        );
+
+        CREATE TABLE grocery_spend (
+          id TEXT PRIMARY KEY NOT NULL,
+          date TEXT NOT NULL,
+          amount_kobo INTEGER NOT NULL CHECK (amount_kobo > 0),
+          note TEXT NOT NULL DEFAULT '',
+          created_at TEXT NOT NULL
+        );
+        CREATE INDEX idx_grocery_spend_date ON grocery_spend(date);
+      `);
+    },
+  },
 ];
 
 async function seed(db: Db) {

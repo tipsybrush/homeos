@@ -49,8 +49,8 @@ export const MODULES: HomeModule[] = [
     description: 'Inventory, shopping list, naira budget',
     icon: 'basket',
     color: colors.green,
-    status: 'planned',
-    phase: 'Phase 2',
+    status: 'available',
+    href: '/kitchen',
   },
   {
     id: 'exercise',

@@ -20,7 +20,7 @@ export function Chip({ label, selected, onPress, accessibilityLabel }: Props) {
       accessibilityState={{ selected: !!selected }}
       accessibilityLabel={accessibilityLabel ?? label}
       hitSlop={4}>
-      <Glass interactive tint={selected ? colors.accent : undefined} style={[styles.chip, selected && styles.selected]}>
+      <Glass interactive tint={selected ? colors.selection : undefined} style={[styles.chip, selected && styles.selected]}>
         <Text variant="subhead" style={{ color: selected ? colors.text : colors.textSecondary, fontWeight: selected ? '600' : '400' }}>
           {label}
         </Text>
@@ -38,6 +38,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selected: {
-    borderColor: colors.accent,
+    borderColor: colors.selection,
   },
 });

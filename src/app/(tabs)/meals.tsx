@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   strip: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.xs, paddingHorizontal: 2, borderRadius: radius.lg },
   arrow: { paddingHorizontal: 4, height: 44, justifyContent: 'center' },
   day: { flex: 1, alignItems: 'center', paddingVertical: spacing.xs, borderRadius: radius.sm, gap: 2 },
-  daySelected: { backgroundColor: colors.accent },
+  daySelected: { backgroundColor: colors.selection },
   dot: { width: 5, height: 5, borderRadius: 3 },
   card: { borderRadius: 24 },
   emptySlot: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, padding: spacing.md, borderRadius: 24 },

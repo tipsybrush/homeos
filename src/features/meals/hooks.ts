@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { addDays, type DateKey } from '@/core/dates';
 import { useDataVersion, useDb } from '@/core/db/DatabaseProvider';
 
+import { autoFillWeek } from './autofill';
 import { sortMeals } from './logic';
 import { createMeal, listMealsForDate, listMealsInRange, listRecipes } from './repository';
 import type { MealDraft, MealPlanEntryView, RecipeSummary } from './types';
@@ -104,4 +105,21 @@ export function useWeeklyVariety(weekDays: DateKey[], from: DateKey) {
   );
 
   return { picks: data.data.picks, loading: data.loading, draftPlan, applyPlan };
+}
+
+/** Fills the week starting at `weekStart` once (see autoFillWeek) and refreshes the screen if meals were added. */
+export function useAutoFillWeek(weekStart: DateKey, from: DateKey) {
+  const db = useDb();
+  const { bump } = useDataVersion();
+  useEffect(() => {
+    let live = true;
+    autoFillWeek(db, weekStart, from)
+      .then((added) => {
+        if (added && live) bump();
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [db, weekStart, from, bump]);
 }

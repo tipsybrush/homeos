@@ -1,13 +1,32 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { formatNaira } from '@/core/money';
 import { colors, spacing } from '@/core/theme/tokens';
 import { Text } from '@/ui';
 
 import { categoryLabel, mealTitle } from '../logic';
-import type { MealPlanEntryView, MealStatus } from '../types';
+import { recipePhoto } from '../images';
+import type { MealCategory, MealPlanEntryView, MealStatus } from '../types';
+
+const CATEGORY_ICON: Record<string, 'sunny-outline' | 'restaurant-outline' | 'moon-outline' | 'cafe-outline'> = {
+  breakfast: 'sunny-outline',
+  lunch: 'restaurant-outline',
+  dinner: 'moon-outline',
+  snack: 'cafe-outline',
+};
+
+/** Recipe photo when one exists, otherwise a tile with the meal's category icon. */
+function MealThumb({ recipeId, category }: { recipeId: string | null; category: MealCategory }) {
+  const photo = recipePhoto(recipeId);
+  if (photo) return <Image source={photo} style={styles.thumb} accessible={false} />;
+  return (
+    <View style={[styles.thumb, styles.thumbFallback]} accessible={false}>
+      <Ionicons name={CATEGORY_ICON[category] ?? 'restaurant-outline'} size={22} color={colors.textSecondary} />
+    </View>
+  );
+}
 
 const STATUS: Record<MealStatus, { label: string; icon: 'ellipse-outline' | 'flame' | 'checkmark-circle' | 'remove-circle-outline'; color: string }> = {
   planned: { label: 'Planned', icon: 'ellipse-outline', color: colors.textSecondary },
@@ -49,6 +68,7 @@ export function MealRow({ meal, showCategory = true, onToggleDone }: Props) {
         accessibilityLabel={`Mark ${title} ${meal.status === 'completed' ? 'not done' : 'done'}`}>
         <Ionicons name={s.icon} size={26} color={s.color} />
       </Pressable>
+      <MealThumb recipeId={meal.recipeId} category={meal.mealCategory} />
       <Pressable
         style={styles.body}
         onPress={() => router.push({ pathname: '/meal/[id]', params: { id: meal.id } })}
@@ -74,4 +94,6 @@ export function MealRow({ meal, showCategory = true, onToggleDone }: Props) {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, minHeight: 56 },
   body: { flex: 1, gap: 2 },
+  thumb: { width: 52, height: 52, borderRadius: 14 },
+  thumbFallback: { backgroundColor: colors.glassFillStrong, alignItems: 'center', justifyContent: 'center' },
 });

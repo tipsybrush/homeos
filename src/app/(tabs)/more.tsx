@@ -7,6 +7,9 @@ import { colors } from '@/core/theme/tokens';
 import { connectionSummary, useHomeAssistant } from '@/features/homeassistant/HomeAssistantProvider';
 import { Divider, Glass, isNativeLiquidGlass, Row, Screen, Section, StatusPill } from '@/ui';
 
+/** Modules that already have their own tab. */
+const TAB_MODULES = ['meals', 'smart-home', 'kitchen'];
+
 export default function MoreScreen() {
   const ha = useHomeAssistant();
   const conn = connectionSummary(ha.mode, ha.status);
@@ -26,19 +29,18 @@ export default function MoreScreen() {
         </Glass>
       </Section>
 
-      <Section title="Modules">
+      <Section title="More tools">
         <Glass style={styles.card}>
-          {MODULES.map((m, i) => (
+          {MODULES.filter((m) => m.status === 'available' && !TAB_MODULES.includes(m.id)).map((m, i) => (
             <View key={m.id}>
               {i > 0 && <Divider />}
               <Row
                 icon={m.icon as never}
                 iconColor={m.color}
                 title={m.title}
-                subtitle={m.status === 'planned' ? `${m.description} · ${m.phase ?? 'Coming next'}` : m.description}
-                onPress={m.href ? () => router.push(m.href as never) : undefined}
-                showChevron={!!m.href}
-                trailing={m.status === 'planned' ? <StatusPill label="Coming" tone="neutral" /> : undefined}
+                subtitle={m.description}
+                onPress={() => router.push(m.href as never)}
+                showChevron
               />
             </View>
           ))}
@@ -47,16 +49,12 @@ export default function MoreScreen() {
 
       <Section title="About">
         <Glass style={styles.card}>
-          <Row icon="information-circle-outline" iconColor={colors.gray} title="HomeOS" subtitle={`Version ${Constants.expoConfig?.version ?? '–'}`} />
-          <Divider />
           <Row
-            icon="sparkles-outline"
+            icon="information-circle-outline"
             iconColor={colors.gray}
-            title="Liquid Glass"
-            subtitle={isNativeLiquidGlass ? 'Native (iOS 26)' : 'Fallback blur (older iOS, Android or web)'}
+            title={`HomeOS ${Constants.expoConfig?.version ?? ''}`.trim()}
+            subtitle={`Your data stays on this phone · Liquid Glass: ${isNativeLiquidGlass ? 'native' : 'fallback'}`}
           />
-          <Divider />
-          <Row icon="lock-closed-outline" iconColor={colors.gray} title="Your data" subtitle="Meals and rooms are stored on this phone only. No AI or cloud services are used." />
         </Glass>
       </Section>
     </Screen>

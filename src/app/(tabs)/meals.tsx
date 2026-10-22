@@ -72,10 +72,10 @@ export default function MealsScreen() {
               <Text variant="caption" tone={isSel ? 'primary' : 'secondary'}>
                 {shortWeekday(date)}
               </Text>
-              <Text variant="headline" style={{ color: isSel ? '#000' : isToday ? colors.accent : colors.text }}>
+              <Text variant="headline" style={{ color: isSel ? colors.onSelection : isToday ? colors.accent : colors.text }}>
                 {dayOfMonth(date)}
               </Text>
-              <View style={[styles.dot, { opacity: meals.length ? 1 : 0, backgroundColor: isSel ? '#000' : colors.accent }]} />
+              <View style={[styles.dot, { opacity: meals.length ? 1 : 0, backgroundColor: isSel ? colors.onSelection : colors.accent }]} />
             </Pressable>
           );
         })}

@@ -10,14 +10,9 @@ import { Platform } from 'react-native';
  */
 
 export const colors = {
-  // Canvas: near-black with a faint blue cast so glass has something to refract.
-  background: '#05060A',
-  backgroundElevated: '#0E1016',
-
-  // Ambient glows painted behind content (see AmbientBackground).
-  glowWarm: '#FF9F0A',
-  glowCool: '#5E5CE6',
-  glowTeal: '#40C8E0',
+  // Canvas: plain muted grey, no gradient (Timi, 2026-10-22).
+  background: '#1C1C1E',
+  backgroundElevated: '#2C2C2E',
 
   // Glass fallbacks for platforms without Liquid Glass.
   glassFill: 'rgba(255,255,255,0.06)',
@@ -33,9 +28,10 @@ export const colors = {
   separator: 'rgba(84,84,88,0.55)',
 
   // iOS system colours (dark variants).
-  accent: '#FF9F0A', // orange: keeps a little warmth from the original brief
-  // Selection (selected chips, day, text cursor): muted kraft-carton brown, Timi's request 2026-10-13.
-  selection: '#8C6F55',
+  accent: '#F5F5F7', // white for links, tabs and buttons (Timi, 2026-10-22: no orange)
+  // Selection (selected chips, day, text cursor): white with dark text (Timi, 2026-10-22; was brown).
+  selection: '#F5F5F7',
+  onSelection: '#000000',
   blue: '#0A84FF',
   green: '#30D158',
   yellow: '#FFD60A',
@@ -62,12 +58,15 @@ export const radius = {
   pill: 999,
 } as const;
 
-/** iOS text styles (points). System font = SF Pro on iOS. */
+/** Heading face (Timi, 2026-10-22): Faculty Glyphic, loaded in app/_layout. It has one weight. */
+export const headingFont = 'FacultyGlyphic_400Regular';
+
+/** iOS text styles (points). Headings use Faculty Glyphic; everything else is the system font (SF Pro). */
 export const type = {
-  largeTitle: { fontSize: 34, lineHeight: 41, fontWeight: '700' },
-  title1: { fontSize: 28, lineHeight: 34, fontWeight: '700' },
-  title2: { fontSize: 22, lineHeight: 28, fontWeight: '600' },
-  title3: { fontSize: 20, lineHeight: 25, fontWeight: '600' },
+  largeTitle: { fontSize: 34, lineHeight: 42, fontFamily: headingFont, fontWeight: '400' },
+  title1: { fontSize: 28, lineHeight: 35, fontFamily: headingFont, fontWeight: '400' },
+  title2: { fontSize: 22, lineHeight: 28, fontFamily: headingFont, fontWeight: '400' },
+  title3: { fontSize: 20, lineHeight: 26, fontFamily: headingFont, fontWeight: '400' },
   headline: { fontSize: 17, lineHeight: 22, fontWeight: '600' },
   body: { fontSize: 17, lineHeight: 22, fontWeight: '400' },
   callout: { fontSize: 16, lineHeight: 21, fontWeight: '400' },

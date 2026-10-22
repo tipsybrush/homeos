@@ -4,14 +4,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, spacing, webTopInset } from '@/core/theme/tokens';
 import { useRecipes } from '@/features/meals/hooks';
-import { AmbientBackground, Divider, Glass, Row } from '@/ui';
+import { Divider, Glass, Row } from '@/ui';
 
 export default function RecipesScreen() {
   const recipes = useRecipes();
   const insets = useSafeAreaInsets();
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <AmbientBackground />
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}>
         <Glass style={{ borderRadius: 24 }}>
           {recipes.data.map((r, i) => (

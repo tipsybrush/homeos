@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/core/theme/tokens';
 
@@ -20,11 +20,19 @@ export function Chip({ label, selected, onPress, accessibilityLabel }: Props) {
       accessibilityState={{ selected: !!selected }}
       accessibilityLabel={accessibilityLabel ?? label}
       hitSlop={4}>
-      <Glass interactive tint={selected ? colors.selection : undefined} style={[styles.chip, selected && styles.selected]}>
-        <Text variant="subhead" style={{ color: selected ? colors.text : colors.textSecondary, fontWeight: selected ? '600' : '400' }}>
-          {label}
-        </Text>
-      </Glass>
+      {selected ? (
+        <View style={[styles.chip, styles.selected]}>
+          <Text variant="subhead" style={{ color: colors.onSelection, fontWeight: '600' }}>
+            {label}
+          </Text>
+        </View>
+      ) : (
+        <Glass interactive style={styles.chip}>
+          <Text variant="subhead" style={{ color: colors.textSecondary }}>
+            {label}
+          </Text>
+        </Glass>
+      )}
     </Pressable>
   );
 }
@@ -38,6 +46,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selected: {
-    borderColor: colors.selection,
+    backgroundColor: colors.selection,
   },
 });

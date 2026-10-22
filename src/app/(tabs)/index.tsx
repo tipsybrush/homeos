@@ -1,57 +1,34 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { formatLongDate, greetingFor, localHour, weekOf } from '@/core/dates';
+import { formatLongDate, greetingFor, localHour } from '@/core/dates';
 import { useDataVersion, useDb } from '@/core/db/DatabaseProvider';
 import { colors, spacing } from '@/core/theme/tokens';
-import { DeviceTile } from '@/features/homeassistant/components/DeviceTile';
+import { routineForDate } from '@/features/exercise/logic';
 import { SceneButton } from '@/features/homeassistant/components/SceneButton';
-import { friendlyName, isOn, isScene, isToggleable, isUnavailable } from '@/features/homeassistant/entities';
+import { friendlyName, isScene, isUnavailable } from '@/features/homeassistant/entities';
 import { connectionSummary, useHomeAssistant } from '@/features/homeassistant/HomeAssistantProvider';
 import { MealRow } from '@/features/meals/components/MealCard';
-import { WeeklyPicks } from '@/features/meals/components/WeeklyPicks';
-import { useMealsForDate, useWeeklyVariety } from '@/features/meals/hooks';
-import { mealTitle, upcomingToday } from '@/features/meals/logic';
+import { useMealsForDate } from '@/features/meals/hooks';
 import { setMealStatus } from '@/features/meals/repository';
-import { useRoomsAndRefs } from '@/features/rooms/hooks';
 import { useToday } from '@/hooks/useToday';
-import { Button, Divider, EmptyState, Glass, Row, Screen, Section, StatusPill, Text } from '@/ui';
+import { Divider, EmptyState, Glass, Row, Screen, Section } from '@/ui';
 
+/** Home answers one question: what does today look like? Everything else lives in its own tab. */
 export default function HomeScreen() {
   const db = useDb();
   const { bump } = useDataVersion();
-  const { today, nowMinutes, now } = useToday();
+  const { today, now } = useToday();
   const ha = useHomeAssistant();
   const meals = useMealsForDate(today);
-  const { picks } = useWeeklyVariety(weekOf(today), today);
-  const { rooms, refs } = useRoomsAndRefs();
   const conn = connectionSummary(ha.mode, ha.status);
+  const routine = routineForDate(today);
 
   const all = useMemo(() => Object.values(ha.entities), [ha.entities]);
   const scenes = all.filter(isScene);
-  const pinnedIds = refs.filter((r) => r.pinned).map((r) => r.entityId);
-  const pinned = pinnedIds.map((id) => ha.entities[id]).filter((e) => !!e);
-  const quickDevices = pinned.length ? pinned : all.filter(isToggleable).slice(0, 4);
-  const upcoming = upcomingToday(meals.data, nowMinutes);
-
-  const unavailable = all.filter((e) => isUnavailable(e) && !isScene(e));
-  const alerts: { key: string; icon: 'warning' | 'cloud-offline'; title: string; body?: string; onPress?: () => void }[] = [];
-  if (ha.status.kind === 'error') {
-    alerts.push({ key: 'conn', icon: 'cloud-offline', title: conn.label, body: ha.status.message, onPress: () => router.push('/settings/home-assistant') });
-  }
-  for (const e of unavailable) {
-    alerts.push({ key: e.entity_id, icon: 'warning', title: `${friendlyName(e)} is unavailable`, body: 'Check its power and Wi-Fi.' });
-  }
-
-  const roomSummary = rooms
-    .map((room) => {
-      const ids = refs.filter((r) => r.roomId === room.id).map((r) => r.entityId);
-      const ents = ids.map((id) => ha.entities[id]).filter((e) => !!e);
-      return { room, total: ents.length, on: ents.filter(isOn).length };
-    })
-    .filter((r) => r.total > 0);
+  // The demo home includes an unavailable device on purpose; only warn about real ones.
+  const offline = ha.mode === 'live' ? all.filter((e) => isUnavailable(e) && !isScene(e)) : [];
 
   const toggleDone = async (id: string, done: boolean) => {
     await setMealStatus(db, id, done ? 'planned' : 'completed');
@@ -59,41 +36,27 @@ export default function HomeScreen() {
   };
 
   return (
-    <Screen
-      title={greetingFor(localHour(now))}
-      subtitle={formatLongDate(today)}
-      onRefresh={ha.refresh}
-      refreshing={ha.status.kind === 'loading'}>
-      <Pressable onPress={() => router.push('/settings/home-assistant')} accessibilityRole="button" accessibilityHint="Opens smart-home connection settings">
-        <StatusPill label={conn.label} tone={conn.tone} />
-      </Pressable>
-
-      {alerts.length > 0 && (
+    <Screen title={greetingFor(localHour(now))} subtitle={formatLongDate(today)} onRefresh={ha.refresh} refreshing={ha.status.kind === 'loading'}>
+      {(ha.status.kind === 'error' || offline.length > 0) && (
         <Glass tint={colors.red} style={styles.card}>
-          {alerts.map((a, i) => (
-            <View key={a.key}>
-              {i > 0 && <Divider />}
-              <Row icon={a.icon} iconColor={colors.yellow} title={a.title} subtitle={a.body} onPress={a.onPress} showChevron={!!a.onPress} />
-            </View>
-          ))}
+          {ha.status.kind === 'error' ? (
+            <Row icon="cloud-offline" iconColor={colors.yellow} title={conn.label} subtitle="Tap to check the connection" onPress={() => router.push('/settings/home-assistant')} showChevron />
+          ) : (
+            <Row
+              icon="warning"
+              iconColor={colors.yellow}
+              title={offline.length === 1 ? `${friendlyName(offline[0]!)} is offline` : `${offline.length} devices are offline`}
+              subtitle={offline.length === 1 ? 'Check its power and Wi-Fi' : 'Check their power and Wi-Fi'}
+              onPress={() => router.push('/rooms')}
+              showChevron
+            />
+          )}
         </Glass>
       )}
 
-      {scenes.length > 0 && (
-        <Section title="Scenes">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scenes} style={styles.bleed}>
-            {scenes.map((s) => (
-              <SceneButton key={s.entity_id} scene={s} />
-            ))}
-          </ScrollView>
-        </Section>
-      )}
-
-      <Section title="Today’s meals" actionLabel="Plan" onAction={() => router.push('/meals')}>
+      <Section title="Today’s meals" actionLabel="See week" onAction={() => router.push('/meals')}>
         {meals.data.length === 0 && !meals.loading ? (
-          <EmptyState icon="restaurant-outline" title="Nothing planned yet" body="Add breakfast, lunch or dinner for today.">
-            <Button label="Add a meal" kind="primary" onPress={() => router.push({ pathname: '/meal/[id]', params: { id: 'new', date: today } })} />
-          </EmptyState>
+          <EmptyState icon="restaurant-outline" title="Nothing planned yet" body="Open Meals and your week fills itself." />
         ) : (
           <Glass style={styles.card}>
             {meals.data.map((m, i) => (
@@ -106,66 +69,30 @@ export default function HomeScreen() {
         )}
       </Section>
 
-      {picks.length > 0 && (
-        <Section title="Try this week" actionLabel="Plan week" onAction={() => router.push('/meals')}>
-          <WeeklyPicks picks={picks} />
-        </Section>
-      )}
-
-      {upcoming.length > 0 && (
-        <Section title="Up next">
-          <Glass style={styles.card}>
-            {upcoming.slice(0, 3).map((m, i) => (
-              <View key={m.id}>
-                {i > 0 && <Divider />}
-                <Row icon="alarm-outline" iconColor={colors.teal} title={mealTitle(m)} subtitle={`${m.scheduledTime} · ${m.mealCategory}`} />
-              </View>
-            ))}
-          </Glass>
-        </Section>
-      )}
-
-      {quickDevices.length > 0 && (
-        <Section title="Devices" actionLabel="Rooms" onAction={() => router.push('/rooms')}>
-          <View style={styles.grid}>
-            {quickDevices.map((e) => (
-              <DeviceTile key={e.entity_id} entity={e} />
-            ))}
-          </View>
-        </Section>
-      )}
-
-      {roomSummary.length > 0 && (
-        <Section title="Rooms">
-          <Glass style={styles.card}>
-            {roomSummary.map(({ room, total, on }, i) => (
-              <View key={room.id}>
-                {i > 0 && <Divider />}
-                <Row
-                  icon={room.icon as never}
-                  iconColor={on > 0 ? colors.yellow : colors.textSecondary}
-                  title={room.name}
-                  subtitle={on > 0 ? `${on} of ${total} on` : `All ${total} off`}
-                  onPress={() => router.push('/rooms')}
-                  showChevron
-                />
-              </View>
-            ))}
-          </Glass>
-        </Section>
-      )}
-
-      <Section title="Energy">
-        <Glass style={[styles.card, styles.energy]}>
-          <Ionicons name="flash-outline" size={22} color={colors.textSecondary} />
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text variant="headline">No energy monitoring yet</Text>
-            <Text variant="footnote" tone="secondary">
-              HomeOS only shows real readings. Add an energy-monitoring plug or a supported inverter integration and it will appear here.
-            </Text>
-          </View>
+      <Section title="Today">
+        <Glass style={styles.card}>
+          <Row
+            icon="barbell"
+            iconColor={colors.red}
+            title={routine ? routine.name : 'Rest day'}
+            subtitle={routine ? `${routine.focus} · about ${routine.minutes} min` : 'A walk and a stretch is plenty'}
+            onPress={() => router.push('/exercise')}
+            showChevron
+          />
+          <Divider />
+          <Row icon="cart" iconColor={colors.green} title="Shopping list" subtitle="What to buy for this week’s meals" onPress={() => router.push('/kitchen')} showChevron />
         </Glass>
       </Section>
+
+      {scenes.length > 0 && (
+        <Section title="Scenes" actionLabel="Rooms" onAction={() => router.push('/rooms')}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scenes} style={styles.bleed}>
+            {scenes.map((s) => (
+              <SceneButton key={s.entity_id} scene={s} />
+            ))}
+          </ScrollView>
+        </Section>
+      )}
     </Screen>
   );
 }
@@ -174,6 +101,4 @@ const styles = StyleSheet.create({
   card: { borderRadius: 24 },
   scenes: { gap: spacing.xs, paddingHorizontal: spacing.md },
   bleed: { marginHorizontal: -spacing.md },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: spacing.sm, justifyContent: 'space-between' },
-  energy: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md, alignItems: 'flex-start' },
 });

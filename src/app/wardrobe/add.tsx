@@ -40,7 +40,7 @@ export default function AddClothingScreen() {
         <Text variant="body" style={{ flex: 1 }}>
           Light, breathable fabric
         </Text>
-        <Switch value={light} onValueChange={setLight} trackColor={{ true: colors.selection }} />
+        <Switch value={light} onValueChange={setLight} trackColor={{ true: colors.green }} />
       </View>
       <Button label="Save" onPress={save} />
     </ScrollView>

@@ -21,8 +21,10 @@ export function normalizeName(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+/** Shopping-friendly amounts: whole grams and millilitres, pieces rounded up, spoons to the nearest half. */
 function formatAmount(quantity: number, unit: string): string {
-  const q = Number.isInteger(quantity) ? String(quantity) : quantity.toFixed(1).replace(/\.0$/, '');
+  const rounded = unit === 'g' || unit === 'ml' ? Math.max(1, Math.round(quantity)) : unit === 'pcs' ? Math.ceil(quantity - 0.05) : Math.max(0.5, Math.round(quantity * 2) / 2);
+  const q = String(rounded);
   return unit === 'pcs' ? q : `${q} ${unit}`;
 }
 
@@ -45,7 +47,7 @@ export function buildShoppingList(items: PlannedIngredient[], pantry: Set<string
       amounts: [...e.units.entries()].map(([u, q]) => formatAmount(Math.round(q * 10) / 10, u)).join(' + '),
       meals: e.meals,
     }))
-    .sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+    .sort((a, b) => categoryRank(a.category) - categoryRank(b.category) || a.name.localeCompare(b.name));
 }
 
 export const CATEGORY_TITLES: Record<string, string> = {
@@ -57,6 +59,14 @@ export const CATEGORY_TITLES: Record<string, string> = {
   oils: 'Oils',
   condiments: 'Seasoning & stock',
 };
+
+/** Aisle order: fresh produce first, store-cupboard last. */
+const CATEGORY_ORDER = ['vegetables', 'fruits', 'proteins', 'dairy', 'grains', 'oils', 'condiments'];
+
+function categoryRank(category: string): number {
+  const i = CATEGORY_ORDER.indexOf(category);
+  return i === -1 ? CATEGORY_ORDER.length : i;
+}
 
 export function categoryTitle(category: string): string {
   return CATEGORY_TITLES[category] ?? 'Other';

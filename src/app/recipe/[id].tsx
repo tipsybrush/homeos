@@ -9,7 +9,7 @@ import { categoryLabel } from '@/features/meals/logic';
 import { getRecipe } from '@/features/meals/repository';
 import type { Recipe } from '@/features/meals/types';
 import { useToday } from '@/hooks/useToday';
-import { AmbientBackground, Button, Divider, Glass, Section, Text } from '@/ui';
+import { Button, Divider, Glass, Section, Text } from '@/ui';
 
 export default function RecipeDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -26,7 +26,6 @@ export default function RecipeDetail() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <AmbientBackground />
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}>
         <View style={{ gap: 4 }}>
           <Text variant="largeTitle">{recipe.name}</Text>

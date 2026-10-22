@@ -10,14 +10,9 @@ import { Platform } from 'react-native';
  */
 
 export const colors = {
-  // Canvas: near-black with a faint blue cast so glass has something to refract.
-  background: '#05060A',
-  backgroundElevated: '#0E1016',
-
-  // Ambient glows painted behind content (see AmbientBackground).
-  glowWarm: '#8C6F55', // muted brown, matches the selection colour
-  glowCool: '#5E5CE6',
-  glowTeal: '#40C8E0',
+  // Canvas: plain muted grey, no gradient (Timi, 2026-10-22).
+  background: '#1C1C1E',
+  backgroundElevated: '#2C2C2E',
 
   // Glass fallbacks for platforms without Liquid Glass.
   glassFill: 'rgba(255,255,255,0.06)',

@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, spacing, webTopInset } from '@/core/theme/tokens';
 
-import { AmbientBackground } from './AmbientBackground';
 import { Text } from './Text';
 
 type Props = {
@@ -22,7 +21,6 @@ export function Screen({ title, subtitle, accessory, children, onRefresh, refres
   const insets = useSafeAreaInsets();
   return (
     <View style={styles.root}>
-      <AmbientBackground />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md + webTopInset, paddingBottom: insets.bottom + 100 }]}

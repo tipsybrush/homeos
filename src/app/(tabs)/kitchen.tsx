@@ -84,10 +84,6 @@ export default function KitchenScreen() {
     await setChecked(db, start, line.key, !data.checked.has(line.key));
     bump();
   };
-  const haveIt = async (line: ShoppingLine) => {
-    await setInPantry(db, line.name, true);
-    bump();
-  };
   const ranOut = async (name: string) => {
     if (
       !(await confirmAsync(
@@ -158,44 +154,34 @@ export default function KitchenScreen() {
                 .map((l) => {
                   const done = data.checked.has(l.key);
                   return (
-                    <View key={l.key}>
-                      <View style={styles.row}>
-                        <Pressable
-                          onPress={() => toggle(l)}
-                          style={styles.check}
-                          accessibilityRole="checkbox"
-                          accessibilityState={{ checked: done }}
-                          accessibilityLabel={`${l.name}, ${l.amounts}`}
-                        >
-                          <Ionicons
-                            name={done ? "checkmark-circle" : "ellipse-outline"}
-                            size={24}
-                            color={done ? colors.green : colors.textTertiary}
-                          />
-                          <View style={{ flex: 1 }}>
-                            <Text
-                              variant="body"
-                              style={done ? styles.doneText : undefined}
-                            >
-                              {l.name}
-                            </Text>
-                            <Text variant="footnote" tone="secondary">
-                              {l.amounts}
-                            </Text>
-                          </View>
-                        </Pressable>
-                        <Pressable
-                          onPress={() => haveIt(l)}
-                          hitSlop={8}
-                          accessibilityRole="button"
-                          accessibilityLabel={`I already have ${l.name}`}
-                        >
-                          <Text variant="subhead" tone="secondary">
-                            Have it
-                          </Text>
-                        </Pressable>
-                      </View>
-                    </View>
+                    <Pressable
+                      key={l.key}
+                      onPress={() => toggle(l)}
+                      style={styles.row}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: done }}
+                      accessibilityLabel={`${l.name}, ${l.amounts}`}
+                    >
+                      <Ionicons
+                        name={done ? "checkmark-circle" : "ellipse-outline"}
+                        size={24}
+                        color={done ? colors.green : colors.textTertiary}
+                      />
+                      <Text
+                        variant="body"
+                        numberOfLines={1}
+                        style={[{ flex: 1 }, done && styles.doneText]}
+                      >
+                        {l.name}
+                      </Text>
+                      <Text
+                        variant="body"
+                        tone="secondary"
+                        style={done ? styles.doneText : undefined}
+                      >
+                        {l.amounts}
+                      </Text>
+                    </Pressable>
                   );
                 })}
             </View>
@@ -293,12 +279,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     minHeight: 52,
-  },
-  check: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
   },
   group: {
     paddingHorizontal: spacing.md,

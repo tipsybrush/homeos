@@ -4,7 +4,8 @@ import { DETAILED_STEPS } from '../guides/steps';
 
 describe('recipe media', () => {
   it('builds Commons photo URLs and YouTube ids', () => {
-    expect(recipePhoto('rcp_jollof', 320)).toEqual({ uri: 'https://commons.wikimedia.org/wiki/Special:FilePath/Jollof_rice_with_dodo.jpg?width=320' });
+    expect(recipePhoto('rcp_jollof', 240)?.uri).toBe('https://commons.wikimedia.org/wiki/Special:FilePath/Jollof_rice_with_dodo.jpg?width=250');
+    expect(recipePhoto('rcp_jollof', 960)?.uri).toMatch(/width=960$/);
     expect(recipePhoto(null)).toBeNull();
     expect(recipeVideo('rcp_jollof')?.id).toMatch(/^[\w-]{11}$/);
   });

@@ -20,9 +20,11 @@ const CATEGORY_ICON: Record<string, 'sunny-outline' | 'restaurant-outline' | 'mo
 
 /** Recipe photo when one exists, otherwise a tile with the meal's category icon. */
 function MealThumb({ recipeId, category }: { recipeId: string | null; category: MealCategory }) {
-  const [failed, setFailed] = useState(false);
-  const photo = recipePhoto(recipeId, 240);
-  if (photo && !failed) return <Image source={photo} style={[styles.thumb, styles.thumbFallback]} onError={() => setFailed(true)} accessible={false} />;
+  // One retry after a pause: the photo host can briefly refuse a burst of requests.
+  const [tries, setTries] = useState(0);
+  const photo = recipePhoto(recipeId, 180);
+  const onError = () => (tries === 0 ? setTimeout(() => setTries(1), 1500) : setTries(2));
+  if (photo && tries < 2) return <Image key={tries} source={photo} style={[styles.thumb, styles.thumbFallback]} onError={onError} accessible={false} />;
   return (
     <View style={[styles.thumb, styles.thumbFallback]} accessible={false}>
       <Ionicons name={CATEGORY_ICON[category] ?? 'restaurant-outline'} size={22} color={colors.textSecondary} />

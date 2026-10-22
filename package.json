@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@expo-google-fonts/faculty-glyphic": "^0.4.0",
     "@expo/vector-icons": "^15.0.2",
     "expo": "~57.0.28",
     "expo-blur": "~57.0.3",

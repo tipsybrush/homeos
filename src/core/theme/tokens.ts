@@ -58,12 +58,15 @@ export const radius = {
   pill: 999,
 } as const;
 
-/** iOS text styles (points). System font = SF Pro on iOS. */
+/** Heading face (Timi, 2026-10-22): Faculty Glyphic, loaded in app/_layout. It has one weight. */
+export const headingFont = 'FacultyGlyphic_400Regular';
+
+/** iOS text styles (points). Headings use Faculty Glyphic; everything else is the system font (SF Pro). */
 export const type = {
-  largeTitle: { fontSize: 34, lineHeight: 41, fontWeight: '700' },
-  title1: { fontSize: 28, lineHeight: 34, fontWeight: '700' },
-  title2: { fontSize: 22, lineHeight: 28, fontWeight: '600' },
-  title3: { fontSize: 20, lineHeight: 25, fontWeight: '600' },
+  largeTitle: { fontSize: 34, lineHeight: 42, fontFamily: headingFont, fontWeight: '400' },
+  title1: { fontSize: 28, lineHeight: 35, fontFamily: headingFont, fontWeight: '400' },
+  title2: { fontSize: 22, lineHeight: 28, fontFamily: headingFont, fontWeight: '400' },
+  title3: { fontSize: 20, lineHeight: 26, fontFamily: headingFont, fontWeight: '400' },
   headline: { fontSize: 17, lineHeight: 22, fontWeight: '600' },
   body: { fontSize: 17, lineHeight: 22, fontWeight: '400' },
   callout: { fontSize: 16, lineHeight: 21, fontWeight: '400' },

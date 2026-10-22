@@ -180,8 +180,7 @@ export default function KitchenScreen() {
                               {l.name}
                             </Text>
                             <Text variant="footnote" tone="secondary">
-                              {l.amounts} · {l.meals} meal
-                              {l.meals === 1 ? "" : "s"}
+                              {l.amounts}
                             </Text>
                           </View>
                         </Pressable>

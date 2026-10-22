@@ -82,7 +82,11 @@ export default function RootLayout() {
               options={{ ...header, title: "Recipes", headerLargeTitle: true }}
             />
             <Stack.Screen name="exercise/index" options={header} />
+            <Stack.Screen name="exercise/[id]" options={header} />
+            <Stack.Screen name="exercise/move/[id]" options={header} />
             <Stack.Screen name="wardrobe/index" options={header} />
+            <Stack.Screen name="wardrobe/styles" options={{ ...header, title: "Styles", headerLargeTitle: true }} />
+            <Stack.Screen name="wardrobe/look/[id]" options={header} />
             <Stack.Screen
               name="wardrobe/add"
               options={{ ...sheet, title: "Add clothing" }}

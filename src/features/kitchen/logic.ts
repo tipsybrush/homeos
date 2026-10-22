@@ -22,7 +22,7 @@ export function normalizeName(name: string): string {
 }
 
 /** Shopping-friendly amounts: whole grams and millilitres, pieces rounded up, spoons to the nearest half. */
-function formatAmount(quantity: number, unit: string): string {
+export function formatAmount(quantity: number, unit: string): string {
   const rounded = unit === 'g' || unit === 'ml' ? Math.max(1, Math.round(quantity)) : unit === 'pcs' ? Math.ceil(quantity - 0.05) : Math.max(0.5, Math.round(quantity * 2) / 2);
   const q = String(rounded);
   return unit === 'pcs' ? q : `${q} ${unit}`;

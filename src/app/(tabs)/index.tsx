@@ -11,6 +11,8 @@ import { friendlyName, isScene, isUnavailable } from '@/features/homeassistant/e
 import { connectionSummary, useHomeAssistant } from '@/features/homeassistant/HomeAssistantProvider';
 import { MealRow } from '@/features/meals/components/MealCard';
 import { useMealsForDate } from '@/features/meals/hooks';
+import { HeadlineList, LoadState, WeatherCard } from '@/features/news/components';
+import { useNews, useWeather } from '@/features/news/useNews';
 import { setMealStatus } from '@/features/meals/repository';
 import { useToday } from '@/hooks/useToday';
 import { Divider, EmptyState, Glass, Row, Screen, Section } from '@/ui';
@@ -24,6 +26,8 @@ export default function HomeScreen() {
   const meals = useMealsForDate(today);
   const conn = connectionSummary(ha.mode, ha.status);
   const routine = routineForDate(today);
+  const weather = useWeather();
+  const news = useNews('top');
 
   const all = useMemo(() => Object.values(ha.entities), [ha.entities]);
   const scenes = all.filter(isScene);
@@ -53,6 +57,13 @@ export default function HomeScreen() {
           )}
         </Glass>
       )}
+
+      <Section title="Your briefing" actionLabel="All news" onAction={() => router.push('/news')}>
+        <View style={{ gap: spacing.sm }}>
+          {weather.data ? <WeatherCard weather={weather.data} compact /> : null}
+          {news.data ? <HeadlineList items={news.data.slice(0, 3)} /> : <LoadState loading={news.loading} error={news.error} onRetry={news.refresh} />}
+        </View>
+      </Section>
 
       <Section title="Today’s meals" actionLabel="See week" onAction={() => router.push('/meals')}>
         {meals.data.length === 0 && !meals.loading ? (

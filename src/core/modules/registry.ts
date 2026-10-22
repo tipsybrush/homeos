@@ -26,6 +26,15 @@ export type HomeModule = {
 
 export const MODULES: HomeModule[] = [
   {
+    id: 'news',
+    title: 'News & weather',
+    description: 'Lagos weather and the day’s headlines',
+    icon: 'newspaper',
+    color: colors.blue,
+    status: 'available',
+    href: '/news',
+  },
+  {
     id: 'meals',
     title: 'Meal planner',
     description: 'Daily and weekly meals, recipes',

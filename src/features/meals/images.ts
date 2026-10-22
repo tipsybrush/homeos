@@ -1,13 +1,23 @@
-import type { ImageSourcePropType } from 'react-native';
+import { MEDIA } from './guides/media';
+
+const COMMONS = 'https://commons.wikimedia.org/wiki';
 
 /**
- * Real photos for each recipe, keyed by recipe id. Add one line per photo:
- *   rcp_jollof: require('../../../assets/recipes/rcp_jollof.jpg'),
- * Use photos you took or openly licensed photos with credit. Never AI-generated.
- * Until a photo is added, the meal shows a category tile instead.
+ * Real photo for a recipe, or null. Photos are Wikimedia Commons files (never AI-generated),
+ * fetched by the phone at the given width. Until a photo exists, meals show a category tile.
  */
-const PHOTOS: Record<string, ImageSourcePropType> = {};
+export function recipePhoto(recipeId: string | null, width = 640): { uri: string } | null {
+  const file = recipeId ? MEDIA[recipeId]?.photo : null;
+  return file ? { uri: `${COMMONS}/Special:FilePath/${encodeURIComponent(file)}?width=${width}` } : null;
+}
 
-export function recipePhoto(recipeId: string | null): ImageSourcePropType | null {
-  return recipeId ? (PHOTOS[recipeId] ?? null) : null;
+/** Commons page with the photographer and licence for a recipe's photo. */
+export function photoCreditUrl(recipeId: string): string | null {
+  const file = MEDIA[recipeId]?.photo;
+  return file ? `${COMMONS}/File:${encodeURIComponent(file)}` : null;
+}
+
+export function recipeVideo(recipeId: string): { id: string; title: string } | null {
+  const m = MEDIA[recipeId];
+  return m?.videoId ? { id: m.videoId, title: m.videoTitle ?? 'How to make it' } : null;
 }

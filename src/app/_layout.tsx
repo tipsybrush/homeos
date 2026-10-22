@@ -74,6 +74,10 @@ export default function RootLayout() {
               options={{ ...sheet, title: "Home Assistant" }}
             />
             <Stack.Screen
+              name="news"
+              options={{ ...header, title: "News", headerLargeTitle: true }}
+            />
+            <Stack.Screen
               name="recipes"
               options={{ ...header, title: "Recipes", headerLargeTitle: true }}
             />

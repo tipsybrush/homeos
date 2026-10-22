@@ -26,7 +26,8 @@
       "expo-router",
       "expo-sqlite",
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      "expo-web-browser"
     ],
     "scheme": "homeos",
     "backgroundColor": "#05060A"

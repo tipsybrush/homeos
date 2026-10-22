@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { formatNaira } from '@/core/money';
@@ -19,8 +20,9 @@ const CATEGORY_ICON: Record<string, 'sunny-outline' | 'restaurant-outline' | 'mo
 
 /** Recipe photo when one exists, otherwise a tile with the meal's category icon. */
 function MealThumb({ recipeId, category }: { recipeId: string | null; category: MealCategory }) {
-  const photo = recipePhoto(recipeId);
-  if (photo) return <Image source={photo} style={styles.thumb} accessible={false} />;
+  const [failed, setFailed] = useState(false);
+  const photo = recipePhoto(recipeId, 240);
+  if (photo && !failed) return <Image source={photo} style={[styles.thumb, styles.thumbFallback]} onError={() => setFailed(true)} accessible={false} />;
   return (
     <View style={[styles.thumb, styles.thumbFallback]} accessible={false}>
       <Ionicons name={CATEGORY_ICON[category] ?? 'restaurant-outline'} size={22} color={colors.textSecondary} />
@@ -45,7 +47,7 @@ type Props = {
   onToggleDone?: () => void;
 };
 
-/** One meal as a row inside a Glass card. Tap opens the editor; the circle marks it done. */
+/** One meal as a row inside a Glass card. Tap opens its recipe (or the editor for a custom meal); the circle marks it done. */
 export function MealRow({ meal, showCategory = true, onToggleDone }: Props) {
   const s = STATUS[meal.status];
   const title = mealTitle(meal);
@@ -71,10 +73,14 @@ export function MealRow({ meal, showCategory = true, onToggleDone }: Props) {
       <MealThumb recipeId={meal.recipeId} category={meal.mealCategory} />
       <Pressable
         style={styles.body}
-        onPress={() => router.push({ pathname: '/meal/[id]', params: { id: meal.id } })}
+        onPress={() =>
+          meal.recipeId
+            ? router.push({ pathname: '/recipe/[id]', params: { id: meal.recipeId, mealId: meal.id } })
+            : router.push({ pathname: '/meal/[id]', params: { id: meal.id } })
+        }
         accessibilityRole="button"
         accessibilityLabel={`${title}, ${meta}, ${s.label}`}
-        accessibilityHint="Opens the meal to edit">
+        accessibilityHint={meal.recipeId ? "Opens the recipe" : "Opens the meal to edit"}>
         <Text
           variant="body"
           numberOfLines={1}
@@ -94,6 +100,6 @@ export function MealRow({ meal, showCategory = true, onToggleDone }: Props) {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, minHeight: 56 },
   body: { flex: 1, gap: 2 },
-  thumb: { width: 52, height: 52, borderRadius: 14 },
+  thumb: { width: 60, height: 60, borderRadius: 16 },
   thumbFallback: { backgroundColor: colors.glassFillStrong, alignItems: 'center', justifyContent: 'center' },
 });

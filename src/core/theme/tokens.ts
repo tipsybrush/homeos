@@ -15,7 +15,7 @@ export const colors = {
   backgroundElevated: '#0E1016',
 
   // Ambient glows painted behind content (see AmbientBackground).
-  glowWarm: '#FF9F0A',
+  glowWarm: '#8C6F55', // muted brown, matches the selection colour
   glowCool: '#5E5CE6',
   glowTeal: '#40C8E0',
 
@@ -33,9 +33,10 @@ export const colors = {
   separator: 'rgba(84,84,88,0.55)',
 
   // iOS system colours (dark variants).
-  accent: '#FF9F0A', // orange: keeps a little warmth from the original brief
-  // Selection (selected chips, day, text cursor): muted kraft-carton brown, Timi's request 2026-10-13.
-  selection: '#8C6F55',
+  accent: '#F5F5F7', // white for links, tabs and buttons (Timi, 2026-10-22: no orange)
+  // Selection (selected chips, day, text cursor): white with dark text (Timi, 2026-10-22; was brown).
+  selection: '#F5F5F7',
+  onSelection: '#000000',
   blue: '#0A84FF',
   green: '#30D158',
   yellow: '#FFD60A',

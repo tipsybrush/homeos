@@ -49,7 +49,7 @@ export default function WardrobeScreen() {
           <EmptyState icon="shirt-outline" title="Add a top, trousers and shoes" body="Outfits are built only from clothes you own." />
         ) : (
           outfits.map((o, i) => (
-            <Glass key={o.top.id} tint={i === 0 ? colors.selection : undefined} style={styles.outfit}>
+            <Glass key={o.top.id} style={styles.outfit}>
               <Text variant="caption" tone="secondary">
                 {i === 0 ? 'BEST FOR THE HEAT' : `OPTION ${i + 1}`}
               </Text>

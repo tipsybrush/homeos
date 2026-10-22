@@ -19,3 +19,11 @@ describe('daily looks', () => {
     expect(ownedMatch({ category: 'top', item: 'Shirt', colour: 'tan', hex: '#A47148' }, [loafers])).toBeNull();
   });
 });
+
+describe('look photos', () => {
+  it('every look has at least one real photo', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { ALL_LOOKS, lookPhotos } = require('../looks');
+    for (const l of ALL_LOOKS) expect(lookPhotos(l.id).length).toBeGreaterThan(0);
+  });
+});

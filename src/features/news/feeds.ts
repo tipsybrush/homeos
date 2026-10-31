@@ -1,6 +1,7 @@
 /**
  * News topics for the daily briefing (Timi, 2026-10-22): headlines, sports, tech,
  * Nigerian tech, and business & finance, both local and international.
+ * Sports is European football only: UCL, EPL, LaLiga (Timi, 2026-10-31).
  * All free public RSS feeds, read directly by the phone. No paid services.
  */
 export type TopicId = 'top' | 'nigeria-tech' | 'tech' | 'business' | 'sports';
@@ -42,14 +43,16 @@ export const TOPICS: { id: TopicId; label: string; feeds: Feed[] }[] = [
       { url: 'https://nairametrics.com/feed/', source: 'Nairametrics' },
       { url: googleNews('naira OR CBN OR NGX when:2d'), source: '' },
       { url: 'https://feeds.bbci.co.uk/news/business/rss.xml', source: 'BBC Business' },
+      { url: googleNews('site:ft.com when:2d'), source: 'Financial Times' },
     ],
   },
   {
     id: 'sports',
     label: 'Sports',
     feeds: [
-      { url: googleNews('Super Eagles OR Super Falcons OR NPFL when:3d'), source: '' },
-      { url: 'https://feeds.bbci.co.uk/sport/rss.xml', source: 'BBC Sport' },
+      { url: googleNews('site:bleacherreport.com football when:2d'), source: 'B/R Football' },
+      { url: googleNews('"Champions League" OR "Premier League" OR LaLiga when:2d'), source: '' },
+      { url: 'https://feeds.bbci.co.uk/sport/football/rss.xml', source: 'BBC Football' },
     ],
   },
 ];
